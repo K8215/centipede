@@ -18,10 +18,10 @@ canvas.width = window.innerWidth;
 //Game Settings
 playerSpeed = 5;
 playerColor = "#0000ff";
-missileSpeed = 10;
+missileSpeed = 15;
 segmentColor = "#E10600";
 segmentSize = 10;
-segmentsTotal = canvas.width / segmentSize / 2;
+segmentsTotal = canvas.width / segmentSize / 3;
 segmentpeed = 5;
 segmentDrop = segmentSize * 3;
 mushroomSize = 15;
@@ -171,6 +171,12 @@ function segmentLogic() {
 			segment.position.y += segmentDrop;
 		}
 	});
+
+	centipedes.forEach((centipede, index) => {
+		if (centipede.length === 0) {
+			centipedes.splice(index, 1);
+		}
+	});
 }
 
 function collisions() {
@@ -194,7 +200,7 @@ function collisions() {
 		);
 	}
 
-	//Centipede/Missile collision
+	//Missile/Segment collision
 	centipedes.forEach((centipede, centipedeIndex) => {
 		centipede.forEach((segment) => {
 			missiles.forEach((missile) => {
@@ -204,7 +210,6 @@ function collisions() {
 					const centipede2 = centipede.slice(index + 1);
 
 					centipedes.splice(centipedeIndex, 1, centipede1, centipede2);
-
 					segments.splice(segments.indexOf(segment), 1);
 					missiles.splice(missiles.indexOf(missile), 1);
 
@@ -214,10 +219,6 @@ function collisions() {
 					});
 				}
 			});
-
-			if (sphereDetection(segment, player)) {
-				gameOver = true;
-			}
 		});
 	});
 
@@ -231,16 +232,20 @@ function collisions() {
 		});
 	});
 
-	//Centipede/Mushroom collision
+	//Centipede collisions
 	segments.forEach((segment) => {
 		mushrooms.forEach((mushroom) => {
 			if (rectDetection(segment, mushroom)) {
 				segment.velocity.x *= -1;
 			}
 		});
+
+		if (sphereDetection(segment, player)) {
+			gameOver = true;
+		}
 	});
 
-	if (segments.length == 1) {
+	if (segments.length == 0) {
 		winCondition = true;
 		gameOver = true;
 	}
